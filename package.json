@@ -1,0 +1,20 @@
+{
+  "name": "nety",
+  "version": "1.0.0",
+  "description": "Nety allows you to see the stats of your connexion (up and down) in almost real time.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "electron .",
+    "dist": "electron-packager ./ --platform win32,linux --icon icon.ico --overwrite"
+  },
+  "author": "Ionys320",
+  "license": "ISC",
+  "dependencies": {
+    "systeminformation": "^4.27.11"
+  },
+  "devDependencies": {
+    "electron": "^10.1.5",
+    "electron-packager": "^15.1.0"
+  }
+}

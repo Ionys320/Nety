@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+
+<head>
+    <title>Nety</title>
+</head>
+
+<body>
+    <div class='row'>
+        <div class='realtime'>
+            <div id='up'>
+                <p class='name'>Up:</p>
+                <p id='up-value'>Loading…</p>
+            </div>
+            <div id='down'>
+                <p class='name'>Down:</p>
+                <p id='down-value'>Loading…</p>
+            </div>
+        </div>
+        <div id="chartDiv" class='chart'></div>
+    </div>
+</body>
+
+<script src="https://code.jscharting.com/latest/jscharting.js"></script>
+<script>
+    const { networkStats } = require('systeminformation');
+
+    var upList = [];
+    var downList = [];
+
+    start();
+
+    async function start() {
+        setInterval(function () {
+            networkStats()
+                .then(response => {
+                    if (response[0].tx_sec != -1) {
+                        let up;
+                        if (response[0].tx_sec >= 1000000000)
+                            up = (response[0].tx_sec / 1000000000).toFixed(2) + 'Gb';
+                        else if (response[0].tx_sec >= 1000000)
+                            up = (response[0].tx_sec / 1000000).toFixed(2) + 'Mb';
+                        else if (response[0].tx_sec >= 1000)
+                            up = (response[0].tx_sec / 1000).toFixed(2) + 'Kb';
+                        else
+                            up = response[0].tx_sec.toFixed(2) + 'B';
+                        if (!up.startsWith('NaN')) {
+                            document.getElementById('up-value').innerHTML = up + '/s';
+                            upList.push({ x: new Date(), y: response[0].tx_sec.toFixed(2) });
+                        }
+
+
+                        let down;
+                        if (response[0].rx_sec >= 1000000000)
+                            down = (response[0].rx_sec / 1000000000).toFixed(2) + 'Gb';
+                        else if (response[0].rx_sec >= 1000000)
+                            down = (response[0].rx_sec / 1000000).toFixed(2) + 'Mb';
+                        else if (response[0].rx_sec >= 1000)
+                            down = (response[0].rx_sec / 1000).toFixed(2) + 'Kb';
+                        else
+                            down = response[0].rx_sec.toFixed(2) + 'B';
+                        if (!down.startsWith('NaN')) {
+                            document.getElementById('down-value').innerHTML = down + '/s';
+                            downList.push({ x: new Date(), y: response[0].rx_sec.toFixed(2) });
+                        }
+
+                        if (upList.length > 20) {
+                            upList.splice(0, 1);
+                            downList.splice(0, 1);
+                        }
+                    }
+                })
+                .catch(e => console.error(e))
+        }, 1000);
+
+        /*JSC.Chart('chartDiv', {
+             legend_visible: false,
+             xAxis_crosshair_enabled: true,
+             xAxis_scale_type: "time",
+             series: [
+                 { name: 'Up', points: upList },
+                 { name: 'Down', points: downList },
+             ],
+         });*/
+    }
+</script>
+
+<style>
+    body {
+        background-color: black;
+    }
+
+    p {
+        font-family: Arial, Helvetica, sans-serif;
+        color: white;
+        margin: 8px
+    }
+
+    .name {
+        font-size: 32px;
+    }
+
+    div {
+        padding-top: 6px;
+        padding-left: 6px;
+    }
+
+    .row {
+        display: grid;
+        grid-auto-columns: max-content;
+    }
+
+    .realtime {
+        grid-row: 1/100;
+    }
+
+    .chart {
+        grid-row: 99/100;
+        width: auto;
+        height: 156px;
+        margin: 0 0;
+    }
+</style>
